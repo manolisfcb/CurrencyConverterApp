@@ -8,20 +8,21 @@ from converter.forms import InputDataForms
 def home():
     forms = InputDataForms()
     if forms.validate_on_submit():
-        date = forms.date.data
+        #date = forms.date.data
         base = forms.base.data
         currency = forms.currency.data
         quantity = forms.quantity.data
         
-        base_url = 'https://api.exchangeratesapi.io/latest'
-        url = base_url + '?base=' + base + '&symbols=' + currency
-        response = requests.get(url)
+        base_url = f'https://economia.awesomeapi.com.br/last/{base}-{currency}'
+        
+        data_change = f'{base}{currency}'
+        response = requests.get(base_url)
         if (response.ok is False):
             flash(f'Error: {response.status_code}')
             flash(f"{response.json()['error']}")
         else:
             data = response.json()
-            total = quantity*data['rates'][currency]
-            flash("{} {} = {:.2f} {} Day of {}".format(quantity, base, total, currency, date))
+            total = quantity*float(data[data_change]['bid'])
+            flash("{} {} = {:.2f} {} Day of".format(quantity, base, total, currency))
 
     return render_template('home.html', form=forms)
